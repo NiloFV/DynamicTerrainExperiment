@@ -158,7 +158,7 @@ main :: proc() {
 
 		for i: i32 = sim.DynamicCirclesCount - 1; i >= 0; i -= 1 {
 			dynCircle := &sim.DynamicCircles[i]
-			dynCircle.Velocity += {0, 9.8}
+			dynCircle.Velocity.y += 9.8
 			dynCircle.Position += dynCircle.Velocity * rl.GetFrameTime()
 
 			if !RectContainsPoint(screenRectInflated, dynCircle.Position) {
@@ -435,19 +435,22 @@ RemoveCircleFromMap :: proc(MapIn: ^Map, Position: rl.Vector2, Radius: f32) {
 		yMin: int = int(positionTileSpace.y - intersectionRef)
 		yMax: int = int(positionTileSpace.y + intersectionRef)
 
-		for j: i32 = 0; j < MapIn.CollisionColumns[i].Count; j += 1 {
-			range := &MapIn.CollisionColumns[i].Ranges[j]
+		curColumn := &MapIn.CollisionColumns[i]
+
+		for j: i32 = 0; j <curColumn.Count; j += 1 {
+			range := &curColumn.Ranges[j]
 
 			if range.Max > yMax && range.Min < yMin {
 				//split
-				newRange := &MapIn.CollisionColumns[i].Ranges[MapIn.CollisionColumns[i].Count]
+				newRange := &curColumn.Ranges[curColumn.Count]
 				newRange.Max = range.Max
 				newRange.Min = yMax
 				range.Max = yMin
-				MapIn.CollisionColumns[i].Count += 1
+				curColumn.Count += 1
 			} else if range.Max <= yMax && range.Min >= yMin {
-				range.Max = 0
-				range.Min = 0
+				range^ = curColumn.Ranges[curColumn.Count - 1]
+				curColumn.Count -= 1
+				j -= 1
 			} else if range.Max <= yMax && range.Max >= yMin && range.Min <= yMin {
 				range.Max = yMin
 			} else if range.Max >= yMax && range.Min <= yMax && range.Min >= yMin {
