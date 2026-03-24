@@ -5,7 +5,7 @@ import "core:fmt"
 import "core:math"
 import "core:math/linalg"
 import rand "core:math/rand"
-import "core:os"
+import "base:runtime"
 import win32 "core:sys/windows"
 import "core:time"
 import rl "vendor:raylib"
@@ -87,7 +87,7 @@ main :: proc() {
 	renderCollision: bool = false
 
 	arena: MemoryArena
-	mem := os.heap_alloc(int(MEGABYTES(PRE_ALOCATED_MEM_MB)))
+	mem := runtime.heap_alloc(int(MEGABYTES(PRE_ALOCATED_MEM_MB)))
 	InitializeArena(&arena, cast(^u8)mem, uintptr(MEGABYTES(PRE_ALOCATED_MEM_MB)))
 
 	sim: Simulation
